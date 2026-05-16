@@ -1,0 +1,20 @@
+﻿@model TinHocTHPT.Models.Entities.SystemSetting
+@{
+    ViewData["Title"] = "Cấu hình hệ thống";
+}
+<h2 class="h4 mb-3">Cấu hình hệ thống</h2>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <div class="row g-3">
+        <div class="col-12"><label class="form-label">Tên hệ thống</label><input asp-for="SystemName" class="form-control" /></div>
+        <div class="col-12"><label class="form-label">Mô tả</label><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
+        <div class="col-md-4"><label class="form-label">Số lần thử tối đa</label><input asp-for="MaxAttempts" class="form-control" /></div>
+        <div class="col-md-4"><label class="form-label">Ngôn ngữ</label><input asp-for="Language" class="form-control" /></div>
+        <div class="col-md-4 d-flex align-items-end"><div class="form-check"><input asp-for="EnableLogging" class="form-check-input" /><label asp-for="EnableLogging" class="form-check-label">Bật ghi log</label></div></div>
+    </div>
+    <button class="btn btn-primary mt-3">Lưu cấu hình</button>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

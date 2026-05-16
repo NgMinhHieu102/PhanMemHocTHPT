@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<section class="hero-landing-wrap">
+    <div class="container py-4">
+        <div class="row align-items-center gy-5">
+            <div class="col-lg-7 d-flex flex-column justify-content-center">
+                <span class="learning-chip mb-3 align-self-start">
+                    <i class="bi bi-stars" aria-hidden="true"></i>
+                    Tin học THPT 10-12 · Luyện tập chủ động
+                </span>
+                <h1 class="hero-gradient-title mb-3 mt-2">Ôn Tin học theo chủ đề, làm bài rõ mục tiêu, thấy tiến bộ sau từng lần học</h1>
+                <p class="lead text-muted mb-0 fw-500">
+                    Hệ thống tập trung vào kiến thức Tin học trung học phổ thông: lập trình, cơ sở dữ liệu, web, an toàn số, dữ liệu và học máy nhập môn.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mt-4 mb-3">
+                    <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-door-open me-2" aria-hidden="true"></i>Đăng nhập
+                    </a>
+                    <a asp-area="" asp-controller="Topics" asp-action="Index" class="btn btn-outline-primary btn-lg px-4">
+                        <i class="bi bi-journal-bookmark me-2" aria-hidden="true"></i>Xem chủ đề
+                    </a>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <span class="learning-chip"><i class="bi bi-check2-circle" aria-hidden="true"></i>Khối 10, 11, 12</span>
+                    <span class="learning-chip"><i class="bi bi-ui-checks-grid" aria-hidden="true"></i>Bài luyện theo mức độ</span>
+                    <span class="learning-chip"><i class="bi bi-clipboard-data" aria-hidden="true"></i>Đề ôn tổng hợp</span>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="learning-illustration" aria-label="Minh họa lộ trình học tập Tin học">
+                    <div class="illustration-row">
+                        <span class="illustration-icon"><i class="bi bi-code-square" aria-hidden="true"></i></span>
+                        <div class="illustration-note">Khối 10: Python, rẽ nhánh, vòng lặp</div>
+                    </div>
+                    <div class="illustration-row">
+                        <span class="illustration-icon" style="background: var(--color-mint-soft); color:#075e55;"><i class="bi bi-database-check" aria-hidden="true"></i></span>
+                        <div class="illustration-note">Khối 11: CSDL, SQL, an toàn mạng</div>
+                    </div>
+                    <div class="illustration-row">
+                        <span class="illustration-icon" style="background: var(--color-coral-soft); color:#a9351f;"><i class="bi bi-window-sidebar" aria-hidden="true"></i></span>
+                        <div class="illustration-note">Khối 12: Web, dữ liệu, học máy nhập môn</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <p class="small text-muted fw-bold mb-1">Học có hệ thống</p>
+            <h2 class="h4 fw-bold mb-0">Nội dung được tổ chức để ôn thật chắc</h2>
+        </div>
+        <a asp-area="" asp-controller="Leaderboard" asp-action="Index" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-trophy me-1" aria-hidden="true"></i>Bảng xếp hạng
+        </a>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <article class="card hero-icon-card p-4 card-no-hover h-100">
+                <div class="hero-icon-big" aria-hidden="true"><i class="bi bi-signpost-split"></i></div>
+                <h3 class="h6 fw-bold">Lộ trình theo khối</h3>
+                <p class="small text-muted mb-0">
+                    Mỗi chủ đề gắn với khối 10, 11 hoặc 12, giúp học sinh chọn đúng phần cần ôn thay vì học dàn trải.
+                </p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card hero-icon-card p-4 card-no-hover h-100">
+                <div class="hero-icon-big" aria-hidden="true"><i class="bi bi-bullseye"></i></div>
+                <h3 class="h6 fw-bold">Gợi ý đúng trọng tâm</h3>
+                <p class="small text-muted mb-0">
+                    Kết quả gần đây được dùng để ưu tiên bài cần ôn lại, bài vừa sức hoặc bài nâng cao phù hợp hơn.
+                </p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card hero-icon-card p-4 card-no-hover h-100">
+                <div class="hero-icon-big" aria-hidden="true"><i class="bi bi-clipboard-data"></i></div>
+                <h3 class="h6 fw-bold">Phản hồi sau mỗi bài</h3>
+                <p class="small text-muted mb-0">
+                    Điểm số, nhận xét và thống kê giúp việc ôn tập bớt mơ hồ, dễ đặt mục tiêu cho lần làm tiếp theo.
+                </p>
+            </article>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,21 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Lỗi";
+}
+
+<div class="container py-5">
+    <div class="card card-no-hover">
+        <div class="card-body p-4 p-lg-5">
+            <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-exclamation-triangle"></i></span>
+            <h1 class="h4 fw-bold text-danger mb-3">Đã xảy ra lỗi</h1>
+            <p class="text-muted fw-500 mb-4">Hệ thống chưa xử lý được yêu cầu này. Vui lòng quay lại trang trước hoặc thử lại sau.</p>
+
+            @if (Model.ShowRequestId)
+            {
+                <p class="small text-muted mb-0">
+                    <strong>Mã yêu cầu:</strong> <code>@Model.RequestId</code>
+                </p>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,131 @@
+@model ExerciseDoViewModel
+@{
+    ViewData["Title"] = "Làm bài";
+    string DiffClass(string? d) => d switch {
+        "Easy" => "badge-easy",
+        "Medium" => "badge-medium",
+        "Hard" => "badge-hard",
+        _ => "badge-medium"
+    };
+}
+
+<div class="container py-4 py-lg-5">
+    <header class="exercise-header mb-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <div>
+                <span class="learning-chip mb-3">
+                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                    Phiếu luyện tập
+                </span>
+                <h1 class="h4 fw-bold mb-0">@Model.ExerciseTitle</h1>
+            </div>
+            <div id="timer" class="timer-badge" aria-live="polite">
+                <i class="bi bi-stopwatch" aria-hidden="true"></i>
+                Còn lại: <span id="timerDisplay"></span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="exercise-question-nav card mb-4">
+        <div class="card-body py-3">
+            <div class="small text-muted fw-semibold mb-2">Danh sách câu hỏi</div>
+            <div class="d-flex flex-wrap gap-2">
+                @for (int i = 0; i < Model.Questions.Count; i++)
+                {
+                    <button type="button" class="btn btn-sm btn-outline-secondary q-dot" data-question-dot-index="@i">
+                        @(i + 1)
+                    </button>
+                }
+            </div>
+        </div>
+    </nav>
+
+    <form id="exerciseForm" asp-area="" asp-controller="ExercisePortal" asp-action="Submit" method="post" data-time-limit="@Model.TimeLimit">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="exerciseId" value="@Model.ExerciseId" />
+        <input type="hidden" id="timeSpent" name="timeSpent" value="0" />
+
+        <div class="progress exercise-progress mb-4" aria-label="Tiến độ làm bài">
+            <div id="progressBar" class="progress-bar" style="width:0%;" role="progressbar" aria-valuemin="0" aria-valuemax="@Model.Questions.Count" aria-valuenow="0">
+                0/@Model.Questions.Count
+            </div>
+        </div>
+
+        @for (int i = 0; i < Model.Questions.Count; i++)
+        {
+            var q = Model.Questions[i];
+            <section class="card question-card mb-4" data-question-index="@i">
+                <div class="card-body p-4">
+                    <input type="hidden" name="answers[@i].QuestionId" value="@q.Id" />
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+                        <h2 class="h6 fw-bold mb-0">
+                            <i class="bi bi-patch-question me-2 text-primary" aria-hidden="true"></i>
+                            Câu @(i + 1)
+                        </h2>
+                        <span class="@DiffClass(q.Difficulty)">@q.DifficultyDisplay</span>
+                    </div>
+
+                    <div class="question-content mb-3">@q.Content</div>
+
+                    @if (!string.IsNullOrWhiteSpace(q.ImageUrl))
+                    {
+                        <img src="@q.ImageUrl" class="img-fluid rounded border mb-3" alt="Ảnh minh họa cho câu hỏi" loading="lazy" />
+                    }
+
+                    <div class="answer-options">
+                        @if (q.QuestionType == QuestionTypes.MultipleTrue)
+                        {
+                            foreach (var ans in q.Answers.OrderBy(a => a.SubIndex))
+                            {
+                                var subIndex = ans.SubIndex ?? ans.Label.ToLowerInvariant();
+                                <div class="answer-option multiple-true-option p-3 mb-2">
+                                    <div class="d-flex flex-column flex-md-row gap-3 justify-content-between align-items-md-center">
+                                        <div>
+                                            <span class="answer-label">@subIndex</span>
+                                            <span>@ans.Content</span>
+                                        </div>
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="Chọn đúng hoặc sai">
+                                            <input type="radio" class="btn-check" name="answers[@i].TruefalseAnswers[@subIndex]" id="q@(q.Id)_@(subIndex)_true" value="true" />
+                                            <label class="btn btn-outline-success" for="q@(q.Id)_@(subIndex)_true">Đúng</label>
+                                            <input type="radio" class="btn-check" name="answers[@i].TruefalseAnswers[@subIndex]" id="q@(q.Id)_@(subIndex)_false" value="false" />
+                                            <label class="btn btn-outline-danger" for="q@(q.Id)_@(subIndex)_false">Sai</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else if (q.QuestionType == QuestionTypes.Essay)
+                        {
+                            <div class="answer-option essay-option">
+                                <label for="essay_@q.Id" class="form-label fw-semibold">Trả lời câu hỏi tự luận:</label>
+                                <textarea class="form-control" id="essay_@q.Id" name="answers[@i].EssayAnswer" rows="6" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var ans in q.Answers)
+                            {
+                                <label class="answer-option d-block p-3 mb-2" data-answer-option>
+                                    <input type="radio" class="d-none" name="answers[@i].SelectedAnswerId" value="@ans.Id" />
+                                    <span class="answer-label">@ans.Label</span>
+                                    <span>@ans.Content</span>
+                                </label>
+                            }
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+
+        <div class="d-flex justify-content-end">
+            <button type="button" id="submitExerciseButton" class="btn btn-success btn-lg fw-bold px-4">
+                <i class="bi bi-send-check me-2" aria-hidden="true"></i>
+                Nộp bài
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+    <script src="~/js/exercise.js" asp-append-version="true"></script>
+}

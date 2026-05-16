@@ -1,0 +1,61 @@
+@model SubmissionDetailViewModel
+@{ ViewData["Title"] = "Chi tiết bài nộp"; }
+<h2 class="h4 mb-3">Chi tiết bài nộp #@Model.Id</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6"><strong>Học sinh:</strong> @Model.StudentName</div>
+            <div class="col-md-6"><strong>Bài:</strong> @Model.ExerciseTitle</div>
+            <div class="col-md-3"><strong>Điểm:</strong> @Model.Score / @Model.MaxScore</div>
+            <div class="col-md-3"><strong>Thời gian:</strong> @Model.TimeSpent giây</div>
+            <div class="col-md-6"><strong>Nộp lúc:</strong> @Model.SubmittedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+            @if (!string.IsNullOrWhiteSpace(Model.AiFeedback))
+            {
+                <div class="col-12"><strong>Nhận xét AI:</strong> @Model.AiFeedback</div>
+            }
+        </div>
+    </div>
+</div>
+
+<h5 class="mt-4">Chi tiết đáp án (@Model.Answers.Count)</h5>
+@if (!Model.Answers.Any())
+{
+    <p class="text-muted">Bài nộp này không có chi tiết đáp án.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered bg-white align-middle">
+            <thead>
+                <tr>
+                    <th style="width:35%">Câu hỏi</th>
+                    <th>Loại</th>
+                    <th>Mệnh đề / Đáp án HS</th>
+                    <th>Đáp án đúng</th>
+                    <th style="width:90px">Kết quả</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model.Answers)
+                {
+                    <tr class="@(a.IsCorrect ? "table-success" : "table-warning")">
+                        <td>@a.QuestionContent</td>
+                        <td>@(a.QuestionType == "MultipleTrue" ? "Đ/S" : "Trắc nghiệm")</td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(a.SubIndex))
+                            {
+                                <span class="badge bg-secondary me-1">@a.SubIndex</span>
+                            }
+                            @(a.SelectedContent ?? a.SelectedLabel ?? "(không chọn)")
+                        </td>
+                        <td>@a.CorrectAnswers</td>
+                        <td>@(a.IsCorrect ? "✓ Đúng" : "✗ Sai")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a asp-action="Index" class="btn btn-outline-secondary mt-2">Quay lại</a>

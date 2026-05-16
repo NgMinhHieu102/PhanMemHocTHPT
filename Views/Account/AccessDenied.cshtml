@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Từ chối truy cập";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card card-no-hover">
+                <div class="card-body text-center p-4 p-lg-5">
+                    <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
+                    <h1 class="h4 fw-bold text-danger mb-3">Bạn không có quyền truy cập</h1>
+                    <p class="text-muted mb-4">Vui lòng đăng nhập bằng tài khoản có quyền phù hợp để tiếp tục.</p>
+                    <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary">Quay về trang đăng nhập</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

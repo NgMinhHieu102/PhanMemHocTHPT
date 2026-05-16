@@ -1,0 +1,86 @@
+@model X.PagedList.IPagedList<TinHocTHPT.Models.Entities.Submission>
+@{
+    ViewData["Title"] = "Bài nộp";
+    var classes = ViewBag.Classes as IEnumerable<TinHocTHPT.Models.Entities.Class> ?? Enumerable.Empty<TinHocTHPT.Models.Entities.Class>();
+    var search = ViewBag.Search as string;
+    var classId = ViewBag.ClassId as int?;
+}
+<h2 class="h4 mb-3">Danh sách bài nộp</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text" name="search" value="@search" class="form-control" placeholder="Tìm theo tên / mã HS / bài tập" />
+    </div>
+    <div class="col-md-3">
+        <select name="classId" class="form-select">
+            <option value="">-- Tất cả lớp --</option>
+            @foreach (var c in classes)
+            {
+                <option value="@c.Id" selected="@(classId == c.Id)">@c.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+    </div>
+    <div class="col-md-2">
+        <a asp-action="Index" class="btn btn-outline-secondary w-100">Bỏ lọc</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered bg-white">
+        <thead>
+            <tr>
+                <th>Học sinh</th>
+                <th>Lớp</th>
+                <th>Bài tập/Đề thi</th>
+                <th>Điểm</th>
+                <th>Thời gian</th>
+                <th>Nộp lúc</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="7" class="text-center text-muted">Chưa có bài nộp nào.</td></tr>
+            }
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>@s.Student.User.FullName <span class="text-muted small">(@s.Student.StudentCode)</span></td>
+                    <td>@(s.Student.Class?.Name ?? "—")</td>
+                    <td>@(s.Exercise?.Title ?? s.Exam?.Title ?? "—")</td>
+                    <td>@s.Score / @s.MaxScore</td>
+                    <td>@s.TimeSpent giây</td>
+                    <td>@s.SubmittedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td><a asp-action="Detail" asp-route-id="@s.Id" class="btn btn-sm btn-outline-info">Chi tiết</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.PageCount > 1)
+{
+    <div class="d-flex justify-content-end mt-3">
+        <nav aria-label="Phân trang bài nộp">
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-search="@search" asp-route-classId="@classId">Đầu</a>
+                </li>
+                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)" asp-route-search="@search" asp-route-classId="@classId">Trước</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">Trang @Model.PageNumber / @Model.PageCount</span></li>
+                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)" asp-route-search="@search" asp-route-classId="@classId">Sau</a>
+                </li>
+                <li class="page-item @(Model.PageNumber == Model.PageCount ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@Model.PageCount" asp-route-search="@search" asp-route-classId="@classId">Cuối</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}

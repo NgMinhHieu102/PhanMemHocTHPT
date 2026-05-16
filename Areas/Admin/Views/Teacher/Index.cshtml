@@ -1,0 +1,6 @@
+@model IEnumerable<TinHocTHPT.Models.Entities.TeacherProfile>
+@{ ViewData["Title"] = "Giáo viên"; }
+<div class="d-flex justify-content-between mb-3"><h2 class="h4 mb-0">Danh sách giáo viên</h2><a asp-action="Create" class="btn btn-primary">Thêm giáo viên</a></div>
+<table class="table table-bordered bg-white"><thead><tr><th>Họ tên</th><th>Email</th><th>Bộ môn</th><th>Điện thoại</th><th></th></tr></thead><tbody>
+@foreach(var t in Model){<tr><td>@t.User.FullName</td><td>@t.User.Email</td><td>@t.Subject</td><td>@t.Phone</td><td class="text-nowrap"><a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary">Sửa</a> <form asp-action="Delete" asp-route-id="@t.Id" method="post" class="d-inline" data-confirm="Xóa giáo viên này?">@Html.AntiForgeryToken()<button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button></form></td></tr>}
+</tbody></table>

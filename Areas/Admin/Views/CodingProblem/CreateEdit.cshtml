@@ -1,0 +1,107 @@
+@model CodingProblemCreateEditViewModel
+@{
+    ViewData["Title"] = Model.Id.HasValue ? "Sửa bài luyện code" : "Thêm bài luyện code";
+}
+
+<h2 class="h4 mb-3">@ViewData["Title"]</h2>
+<form method="post">
+    @Html.AntiForgeryToken()
+    @if (Model.Id.HasValue)
+    {
+        <input asp-for="Id" type="hidden" />
+    }
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <div class="row g-3">
+        <div class="col-md-8">
+            <label class="form-label">Tiêu đề</label>
+            <input asp-for="Title" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Chủ đề</label>
+            <select asp-for="TopicId" asp-items="Model.TopicOptions" class="form-select"></select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Khối</label>
+            <select asp-for="Grade" class="form-select">
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Độ khó</label>
+            <select asp-for="Difficulty" class="form-select">
+                <option value="Easy">Dễ</option>
+                <option value="Medium">Trung bình</option>
+                <option value="Hard">Khó</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Giới hạn thời gian (ms)</label>
+            <input asp-for="TimeLimitMs" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Giới hạn bộ nhớ (KB)</label>
+            <input asp-for="MemoryLimitKb" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Trạng thái</label>
+            <select asp-for="Status" class="form-select">
+                <option value="Active">Hoạt động</option>
+                <option value="Inactive">Không hoạt động</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Nội dung đề bài</label>
+            <textarea asp-for="Description" class="form-control" rows="6"></textarea>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Danh sách test case</label>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle bg-white">
+                    <thead>
+                        <tr>
+                            <th style="width:90px">#</th>
+                            <th>Input (stdin)</th>
+                            <th>Output mong đợi</th>
+                            <th style="width:120px">Test mẫu</th>
+                            <th style="width:180px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="testCasesBody">
+                        @for (int i = 0; i < Model.TestCases.Count; i++)
+                        {
+                            <tr data-testcase-row>
+                                <td>
+                                    <input asp-for="TestCases[@i].OrderIndex" class="form-control testcase-order-input" readonly />
+                                </td>
+                                <td>
+                                    <textarea asp-for="TestCases[@i].Input" class="form-control" rows="2"></textarea>
+                                </td>
+                                <td>
+                                    <textarea asp-for="TestCases[@i].ExpectedOutput" class="form-control" rows="2"></textarea>
+                                </td>
+                                <td class="text-center">
+                                    <input asp-for="TestCases[@i].IsSample" class="form-check-input" />
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-primary mb-1" data-mark-sample>Đặt mẫu</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-remove-testcase>Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addTestCaseRow">Thêm dòng test case</button>
+            <div class="small text-muted">Bạn có thể để trống dòng không dùng. Test mẫu đầu tiên sẽ được dùng làm ví dụ hiển thị cho học sinh.</div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Lưu</button>
+    <a asp-action="Index" class="btn btn-outline-secondary mt-3">Quay lại</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/admin-coding-problem-form.js" asp-append-version="true"></script>
+}

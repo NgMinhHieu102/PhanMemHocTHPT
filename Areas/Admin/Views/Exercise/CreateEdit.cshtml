@@ -1,0 +1,24 @@
+﻿@model TinHocTHPT.Models.Entities.Exercise
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm bài tập" : "Sửa bài tập";
+    var topics = ViewBag.Topics as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+}
+<h2 class="h4 mb-3">@ViewData["Title"]</h2>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="CreatedAt" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-12"><label class="form-label">Tiêu đề</label><input asp-for="Title" class="form-control" /></div>
+        <div class="col-md-4"><label class="form-label">Chủ đề</label><select asp-for="TopicId" asp-items="topics" class="form-select"></select></div>
+        <div class="col-md-2"><label class="form-label">Khối</label><input asp-for="Grade" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Mức độ</label><select asp-for="Difficulty" class="form-select"><option value="Easy">Dễ</option><option value="Medium">Trung bình</option><option value="Hard">Khó</option></select></div>
+        <div class="col-md-3"><label class="form-label">Thời gian (giây)</label><input asp-for="TimeLimit" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Trạng thái</label><select asp-for="Status" class="form-select"><option value="Active">Hoạt động</option><option value="Inactive">Không hoạt động</option></select></div>
+    </div>
+    <button class="btn btn-primary mt-3">Lưu</button>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

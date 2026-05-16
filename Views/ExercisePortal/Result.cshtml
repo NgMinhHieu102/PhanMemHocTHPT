@@ -1,0 +1,185 @@
+@model ResultViewModel
+@{
+    ViewData["Title"] = "Kết quả";
+    string RecDiffClass(string? d) => d switch {
+        "Easy" => "badge-easy",
+        "Medium" => "badge-medium",
+        "Hard" => "badge-hard",
+        _ => "badge-medium"
+    };
+    string RecDiffLabel(string? d) => d switch {
+        "Easy" => "Dễ",
+        "Medium" => "Trung bình",
+        "Hard" => "Khó",
+        _ => d ?? ""
+    };
+    string GradeIcon(decimal score) => score switch {
+        >= 9.0m => "bi-stars",
+        >= 7.0m => "bi-check2-circle",
+        >= 5.0m => "bi-graph-up-arrow",
+        _ => "bi-arrow-repeat"
+    };
+}
+
+<div class="container py-4 py-lg-5">
+    <section class="card result-summary-card mb-5">
+        <div class="card-body p-4 p-lg-5">
+            <div class="row align-items-center gy-4">
+                <div class="col-lg-5 text-center text-lg-start">
+                    <span class="learning-chip mb-3">
+                        <i class="bi bi-clipboard-data" aria-hidden="true"></i>
+                        Kết quả luyện tập
+                    </span>
+                    <div class="score-display @Model.ScoreColorClass">@Model.Score.ToString("0.0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))</div>
+                    <p class="fs-5 fw-bold mb-0">
+                        <i class="bi @GradeIcon(Model.Score) me-2" aria-hidden="true"></i>
+                        @Model.Grade
+                    </p>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="row g-3 mb-4">
+                        <div class="col-4">
+                            <div class="result-mini-stat">
+                                <span>Đúng</span>
+                                <strong>@Model.CorrectCount</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="result-mini-stat">
+                                <span>Sai</span>
+                                <strong>@Model.WrongCount</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="result-mini-stat">
+                                <span>Bỏ qua</span>
+                                <strong>@Model.SkippedCount</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-muted fw-500 mb-3">
+                        <i class="bi bi-clock-history me-2" aria-hidden="true"></i>
+                        <span data-seconds="@Model.TimeSpent">@Model.TimeSpent giây</span> thời gian làm bài
+                    </p>
+
+                    <div class="ai-feedback-note">
+                        <strong>Nhận xét AI</strong>
+                        <p class="mb-0">@Model.AiFeedback</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+            <div>
+                <p class="small text-muted fw-bold mb-1">Lộ trình tiếp theo</p>
+                <h2 class="h5 fw-bold mb-0">Gợi ý làm tiếp</h2>
+            </div>
+            <a asp-area="" asp-controller="Topics" asp-action="Index" class="btn btn-outline-primary btn-sm fw-semibold">
+                <i class="bi bi-journal-bookmark me-1" aria-hidden="true"></i>
+                Xem chủ đề
+            </a>
+        </div>
+
+        @if (!Model.Recommendations.Any())
+        {
+            <div class="empty-state-block">
+                <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></span>
+                <h3 class="h5 fw-bold mb-2">Tạm thời chưa có bài gợi ý</h3>
+                <p class="text-muted small fw-500 mb-0">Hãy quay lại danh sách chủ đề và chọn bài luyện tập phù hợp với mục tiêu của bạn.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var item in Model.Recommendations)
+                {
+                    <div class="col-md-6 col-xl-4">
+                        <article class="card recommendation-card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <span class="@RecDiffClass(item.Difficulty) align-self-start mb-3">@RecDiffLabel(item.Difficulty)</span>
+                        <h3 class="h6 fw-bold">@item.ExerciseTitle</h3>
+                        <p class="small mb-3"><span class="fw-semibold @item.FitClass">@item.FitLabel</span></p>
+                                <p class="text-muted mb-4 flex-grow-1 small">Chủ đề: <strong class="text-body">@item.TopicName</strong></p>
+                                <a asp-area="" asp-controller="ExercisePortal" asp-action="Do" asp-route-id="@item.ExerciseId" class="btn btn-primary btn-sm fw-bold">
+                                    <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>
+                                    Làm bài
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    <section>
+        <div class="d-flex align-items-center gap-2 mb-4">
+            <i class="bi bi-list-check text-primary fs-4" aria-hidden="true"></i>
+            <h2 class="h5 fw-bold mb-0">Chi tiết từng câu</h2>
+        </div>
+
+        @foreach (var q in Model.QuestionResults)
+        {
+            <article class="card question-card mb-3">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+                        <strong>Câu @q.OrderIndex</strong>
+                        @if (q.IsCorrect)
+                        {
+                            <span class="result-status result-status-correct">
+                                <i class="bi bi-check2" aria-hidden="true"></i>
+                                Đúng
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="result-status result-status-wrong">
+                                <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                Sai
+                            </span>
+                        }
+                    </div>
+
+                    <p class="question-content mb-3">@q.Content</p>
+
+                    @if (q.QuestionType == QuestionTypes.Essay)
+                    {
+                        <div class="essay-answer-review">
+                            <strong>Câu trả lời của bạn:</strong>
+                            <div class="mt-2 p-3 bg-light rounded">@(string.IsNullOrWhiteSpace(q.EssayAnswer) ? "<em>Không có câu trả lời</em>" : q.EssayAnswer)</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="answer-review-list mb-0">
+                            @foreach (var a in q.Answers)
+                            {
+                                <li class="@(a.IsCorrect ? "is-correct" : "") @(q.SelectedAnswerId == a.Id && !a.IsCorrect ? "is-wrong" : "")">
+                                    <span class="answer-label">@(q.QuestionType == QuestionTypes.MultipleTrue ? a.SubIndex : a.Label)</span>
+                                    <span>@a.Content</span>
+                                    @if (q.QuestionType == QuestionTypes.MultipleTrue)
+                                    {
+                                        <small class="ms-2 fw-bold text-muted">(@(a.IsCorrect ? "Đúng" : "Sai"))</small>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(q.Explanation))
+                    {
+                        <div class="mt-3 p-3 rounded border bg-light">
+                            <strong class="d-block mb-1">Giải thích:</strong>
+                            <span>@q.Explanation</span>
+                        </div>
+                    }
+                </div>
+            </article>
+        }
+    </section>
+</div>

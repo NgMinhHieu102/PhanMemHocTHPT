@@ -1,0 +1,187 @@
+@model TinHocTHPT.Models.Entities.StudentProfile
+@using System.Globalization
+@{
+    ViewData["Title"] = "Thống kê học tập";
+    var recent = ViewBag.Recent as IEnumerable<TinHocTHPT.Models.Entities.Submission>;
+    var recentList = (recent ?? Enumerable.Empty<TinHocTHPT.Models.Entities.Submission>())
+        .OrderByDescending(s => s.SubmittedAt)
+        .ToList();
+
+    var dailyLabels = new List<string>();
+    var dailyScores = new List<double>();
+    for (int i = 6; i >= 0; i--)
+    {
+        var day = DateTime.Today.AddDays(-i);
+        dailyLabels.Add(day.ToString("dd/MM"));
+        var dayScores = recentList
+            .Where(s =>
+            {
+                var lt = s.SubmittedAt.Kind == DateTimeKind.Utc ? s.SubmittedAt.ToLocalTime() : s.SubmittedAt;
+                return lt.Date == day.Date;
+            })
+            .Select(s => (double)s.Score)
+            .ToList();
+        dailyScores.Add(dayScores.Any() ? dayScores.Average() : 0d);
+    }
+
+    var jOpts = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    bool chartHasPoints = dailyScores.Any(z => z > 0.0001);
+
+    string SubmissionTitle(TinHocTHPT.Models.Entities.Submission s)
+    {
+        if (s.Exercise is not null) return s.Exercise.Title;
+        if (s.Exam is not null) return s.Exam.Title;
+        if (s.ExerciseId.HasValue) return $"Bài luyện #{s.ExerciseId.Value}";
+        if (s.ExamId.HasValue) return $"Đề ôn #{s.ExamId.Value}";
+        return "Bài nộp";
+    }
+
+    double PctWidth(double score, decimal maxScore)
+    {
+        var mx = maxScore > 0 ? (double)maxScore : 10d;
+        var sc = Math.Min((double)score, mx);
+        return mx <= 0 ? 0 : sc / mx * 100d;
+    }
+}
+
+<div class="container py-4 py-lg-5">
+    <header class="mb-4">
+        <p class="small text-muted fw-semibold mb-1">Nhìn lại quá trình</p>
+        <h1 class="h3 fw-bold mb-2">Thống kê học tập</h1>
+        <p class="text-muted fw-500 mb-0">
+            Theo dõi điểm, số bài đã làm, chủ đề đã học và xu hướng 7 ngày gần nhất để chọn bài ôn tiếp theo chính xác hơn.
+        </p>
+    </header>
+
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card dashboard-stat card-no-hover h-100">
+                <div class="card-body stat-card-ui stat-gold">
+                    <div class="stat-icon-wrap" aria-hidden="true"><i class="bi bi-trophy"></i></div>
+                    <div>
+                        <div class="stat-label">Tổng điểm</div>
+                        <div class="stat-value">@Math.Round(Model.TotalScore, MidpointRounding.AwayFromZero)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card dashboard-stat card-no-hover h-100">
+                <div class="card-body stat-card-ui stat-blue">
+                    <div class="stat-icon-wrap" aria-hidden="true"><i class="bi bi-journal-check"></i></div>
+                    <div>
+                        <div class="stat-label">Số bài đã làm</div>
+                        <div class="stat-value">@Model.ExercisesDone</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card dashboard-stat card-no-hover h-100">
+                <div class="card-body stat-card-ui stat-violet">
+                    <div class="stat-icon-wrap" aria-hidden="true"><i class="bi bi-bullseye"></i></div>
+                    <div>
+                        <div class="stat-label">Chủ đề đã học</div>
+                        <div class="stat-value">@Model.TopicsStudied</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card dashboard-stat card-no-hover h-100 streak-pulse" data-streak-active="@(Model.StreakDays > 0 ? "true" : "false")">
+                <div class="card-body stat-card-ui stat-orange">
+                    <div class="stat-icon-wrap" aria-hidden="true"><i class="bi bi-lightning-charge"></i></div>
+                    <div>
+                        <div class="stat-label">Chuỗi ngày học</div>
+                        <div class="stat-value">@Model.StreakDays</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="card mb-5">
+        <div class="card-body p-4 p-lg-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+                <div>
+                    <h2 class="h5 fw-bold mb-1">Điểm trung bình 7 ngày gần đây</h2>
+                    <p class="small text-muted mb-0 fw-500">Mỗi điểm trên biểu đồ là trung bình các bài bạn nộp trong ngày tương ứng.</p>
+                </div>
+            </div>
+            @if (!chartHasPoints)
+            {
+                <div class="empty-state-block mb-4">
+                    <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-graph-up"></i></span>
+                    <div class="h6 fw-bold mb-2">Chưa có điểm trong 7 ngày qua</div>
+                    <p class="text-muted mb-3 small fw-500">Hãy làm một bài luyện để biểu đồ bắt đầu ghi nhận tiến bộ.</p>
+                    <a asp-area="" asp-controller="Topics" asp-action="Index" class="btn btn-primary btn-sm fw-semibold">Chọn chủ đề ôn</a>
+                </div>
+            }
+            <div class="stats-chart-wrap"><canvas id="scoreChart"></canvas></div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <h2 class="h5 fw-bold mb-4">10 bài nộp gần đây</h2>
+
+        @if (!recentList.Any())
+        {
+            <div class="empty-state-block">
+                <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-inbox"></i></span>
+                <h3 class="h6 fw-bold">Chưa có bài nộp</h3>
+                <p class="text-muted mb-4 small fw-500">Kết quả từ mỗi lần làm bài sẽ được ghi tại đây.</p>
+                <a asp-area="" asp-controller="Topics" asp-action="Index" class="btn btn-outline-primary fw-semibold">Ôn chủ đề đầu tiên</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-modern-wrap">
+                <table class="table-modern align-middle">
+                    <thead>
+                        <tr>
+                            <th class="text-nowrap">Thời gian</th>
+                            <th>Tên bài</th>
+                            <th>Điểm</th>
+                            <th class="text-nowrap">Thời lượng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in recentList)
+                        {
+                            var pct = PctWidth((double)s.Score, s.MaxScore);
+                            var pctInvariant = pct.ToString("F1", CultureInfo.InvariantCulture);
+                            long msUnix = new DateTimeOffset(s.SubmittedAt.ToUniversalTime()).ToUnixTimeMilliseconds();
+                            <tr>
+                                <td class="small fw-600" data-ms="@msUnix">@s.SubmittedAt.ToLocalTime().ToString("dd/MM HH:mm", vi)</td>
+                                <td class="fw-semibold small">@SubmissionTitle(s)</td>
+                                <td class="stats-score-cell">
+                                    @{
+                                        string scoreFmt = ((double)s.Score).ToString("0.#", vi);
+                                        string maxFmt = s.MaxScore > 0 ? ((double)s.MaxScore).ToString("0.#", vi) : "10";
+                                    }
+                                    <div class="fw-bold small mb-1">@scoreFmt / @maxFmt</div>
+                                    <div class="mini-progress-wrap">
+                                        <div class="mini-progress">
+                                            <div class="mini-progress-fill" data-progress-width="@pctInvariant"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="small fw-500 text-muted"><span data-seconds="@s.TimeSpent">@(s.TimeSpent) giây</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+<div id="statsPortalData"
+     data-labels='@Html.Raw(JsonSerializer.Serialize(dailyLabels, jOpts))'
+     data-values='@Html.Raw(JsonSerializer.Serialize(dailyScores, jOpts))'
+     class="d-none"></div>
+
+@section Scripts {
+    <script src="~/js/stats-portal.js" asp-append-version="true"></script>
+}

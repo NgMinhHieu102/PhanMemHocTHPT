@@ -1,0 +1,13 @@
+@model TeacherViewModel
+@{ ViewData["Title"] = "Thêm giáo viên"; }
+<h2 class="h4 mb-3">Thêm giáo viên</h2>
+<form method="post">@Html.AntiForgeryToken()<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row g-3">
+<div class="col-md-6"><label class="form-label">Họ và tên</label><input asp-for="FullName" class="form-control"/></div>
+<div class="col-md-6"><label class="form-label">Email</label><input asp-for="Email" class="form-control"/></div>
+<div class="col-md-6"><label class="form-label">Tên đăng nhập</label><input asp-for="Username" class="form-control"/></div>
+<div class="col-md-6"><label class="form-label">Mật khẩu</label><input asp-for="Password" type="password" class="form-control" autocomplete="new-password"/></div>
+<div class="col-md-6"><label class="form-label">Bộ môn</label><input asp-for="Subject" class="form-control"/></div>
+<div class="col-md-6"><label class="form-label">Số điện thoại</label><input asp-for="Phone" class="form-control"/></div>
+</div><button class="btn btn-primary mt-3">Lưu</button></form>
+@section Scripts{<partial name="_ValidationScriptsPartial"/>}

@@ -1,0 +1,20 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace TinHocTHPT.Models.ViewModels.Account;
+
+public class ChangePasswordViewModel
+{
+    [Required(ErrorMessage = "Vui lòng nhập mật khẩu hiện tại.")]
+    [DataType(DataType.Password)]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Vui lòng nhập mật khẩu mới.")]
+    [DataType(DataType.Password)]
+    [MinLength(10, ErrorMessage = "Mật khẩu mới phải có ít nhất 10 ký tự.")]
+    public string NewPassword { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Vui lòng xác nhận mật khẩu mới.")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(NewPassword), ErrorMessage = "Xác nhận mật khẩu không khớp.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+}

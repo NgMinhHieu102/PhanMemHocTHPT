@@ -1,0 +1,79 @@
+@model IEnumerable<TinHocTHPT.Models.Entities.Exam>
+@{ ViewData["Title"] = "Đề thi"; }
+<div class="d-flex justify-content-between mb-3">
+        <div>
+            <h2 class="h4 mb-0">Danh sách đề thi</h2>
+        </div>
+        <a asp-action="CreateEdit" class="btn btn-primary">Thêm đề thi</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-auto">
+        <div class="small text-muted">Tổng đề thi</div>
+        <div class="h5 mb-0">@Model.Count()</div>
+    </div>
+    <div class="col-auto">
+        <div class="small text-muted">Đang hoạt động</div>
+        <div class="h5 mb-0">@Model.Count(e => e.Status == "Active")</div>
+    </div>
+    <div class="col-auto">
+        <div class="small text-muted">Không hoạt động</div>
+        <div class="h5 mb-0">@Model.Count(e => e.Status != "Active")</div>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="search" value="@(ViewBag.Search ?? "")" class="form-control" placeholder="Tìm theo tiêu đề" />
+    </div>
+    <div class="col-md-3">
+        <select name="grade" class="form-select">
+            <option value="">Tất cả khối</option>
+            <option value="10" selected="@(ViewBag.Grade == 10)">Khối 10</option>
+            <option value="11" selected="@(ViewBag.Grade == 11)">Khối 11</option>
+            <option value="12" selected="@(ViewBag.Grade == 12)">Khối 12</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Active" selected="@(ViewBag.Status == "Active")">Hoạt động</option>
+            <option value="Inactive" selected="@(ViewBag.Status == "Inactive")">Không hoạt động</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button class="btn btn-outline-primary" type="submit">Lọc</button>
+    </div>
+</form>
+
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr>
+            <th>Tiêu đề</th>
+            <th>Khối</th>
+            <th>Thời lượng</th>
+            <th>Số câu</th>
+            <th>Trạng thái</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var e in Model)
+        {
+            <tr>
+                <td>@e.Title</td>
+                <td>@e.Grade</td>
+                <td>@e.Duration phút</td>
+                <td>@e.TotalQuestions</td>
+                <td>@(e.Status == "Active" ? "Hoạt động" : "Không hoạt động")</td>
+                <td class="text-nowrap">
+                    <a asp-action="CreateEdit" asp-route-id="@e.Id" class="btn btn-sm btn-outline-primary">Sửa</a>
+                    <form asp-action="Delete" asp-route-id="@e.Id" method="post" class="d-inline" data-confirm="Xóa đề thi này?">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

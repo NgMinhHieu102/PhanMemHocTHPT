@@ -1,0 +1,11 @@
+@model TinHocTHPT.Models.Entities.StudentProfile
+@{ ViewData["Title"] = "Chi tiết học sinh"; }
+<h2 class="h4 mb-3">Chi tiết học sinh</h2>
+<div class="card"><div class="card-body">
+<p><strong>Mã:</strong> @Model.StudentCode</p>
+<p><strong>Họ tên:</strong> @Model.User.FullName</p>
+<p><strong>Lớp:</strong> @(Model.Class?.Name ?? "Chưa xếp lớp")</p>
+<p><strong>Khối:</strong> @Model.Grade</p>
+<p><strong>Tổng điểm:</strong> @Model.TotalScore</p>
+<p><strong>Số bài làm:</strong> @Model.ExercisesDone</p>
+</div></div>

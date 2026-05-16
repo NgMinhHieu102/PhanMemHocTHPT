@@ -1,0 +1,98 @@
+@model TinHocTHPT.Models.Entities.Topic
+@{
+    ViewData["Title"] = "Chi tiết chủ đề";
+    var exercises = ViewBag.Exercises as IEnumerable<TinHocTHPT.Models.Entities.Exercise>;
+    var exerciseList = (exercises ?? Enumerable.Empty<TinHocTHPT.Models.Entities.Exercise>()).ToList();
+    var completedExerciseIds = ViewBag.CompletedExerciseIds as HashSet<int> ?? new HashSet<int>();
+    string DiffClass(string? d) => d switch {
+        "Easy" => "badge-easy",
+        "Medium" => "badge-medium",
+        "Hard" => "badge-hard",
+        _ => "badge-medium"
+    };
+    string DiffLabel(string? d) => d switch {
+        "Easy" => "Dễ",
+        "Medium" => "Trung bình",
+        "Hard" => "Khó",
+        _ => d ?? ""
+    };
+    string TimeLabel(int seconds)
+    {
+        var minutes = seconds / 60;
+        return minutes > 0 ? $"{minutes} phút" : $"{seconds} giây";
+    }
+}
+
+<div class="container py-4 py-lg-5">
+    <nav class="breadcrumb-modern" aria-label="Breadcrumb">
+        <a asp-area="" asp-controller="Topics" asp-action="Index">Chủ đề</a>
+        <span aria-hidden="true">›</span>
+        <span class="fw-600 text-body">@Model.Name</span>
+    </nav>
+
+    <section class="card card-no-hover mb-4">
+        <div class="card-body p-4 p-lg-5">
+            <span class="learning-chip mb-3">
+                <i class="bi bi-mortarboard" aria-hidden="true"></i>
+                Khối @Model.Grade
+            </span>
+            <h1 class="h3 fw-bold mb-3">@Model.Name</h1>
+            <p class="text-muted fw-500 mb-4">@(string.IsNullOrWhiteSpace(Model.Description) ? "Chủ đề đang được cập nhật mô tả chi tiết." : Model.Description)</p>
+            <div class="d-flex flex-wrap gap-4">
+                <div>
+                    <div class="small text-muted fw-semibold">Số bài luyện</div>
+                    <div class="h4 fw-bold mb-0">@exerciseList.Count</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="h5 fw-bold mb-4">Danh sách bài luyện</h2>
+
+        @if (!exerciseList.Any())
+        {
+            <div class="empty-state-block">
+                <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-journal-plus"></i></span>
+                <h3 class="h5 fw-bold">Chưa có bài luyện trong chủ đề này</h3>
+                <p class="text-muted mb-4">Hãy quay lại danh sách chủ đề hoặc liên hệ giáo viên để được giao bài phù hợp.</p>
+                <a asp-area="" asp-controller="Topics" asp-action="Index" class="btn btn-primary">Danh sách chủ đề</a>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-column gap-3">
+                @{ var ix = 0; }
+                @foreach (var e in exerciseList)
+                {
+                    ix++;
+                    <article class="exercise-row-card">
+                        <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
+                            <span class="learning-chip py-1 px-2" style="min-width: 2.4rem;">@ix</span>
+                            <div class="min-w-0">
+                                <h3 class="h6 fw-bold mb-2 text-truncate" title="@e.Title">@e.Title</h3>
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <span class="@DiffClass(e.Difficulty)">@DiffLabel(e.Difficulty)</span>
+                                    <span class="small text-muted"><i class="bi bi-clock me-1" aria-hidden="true"></i>@TimeLabel(e.TimeLimit)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 flex-shrink-0">
+                            @if (completedExerciseIds.Contains(e.Id))
+                            {
+                                <span class="text-success fs-5" title="Đã hoàn thành" aria-hidden="true"><i class="bi bi-check-circle-fill"></i></span>
+                            }
+                            else
+                            {
+                                <span class="text-primary fs-5" title="Chưa hoàn thành" aria-hidden="true"><i class="bi bi-circle"></i></span>
+                            }
+                            <a asp-area="" asp-controller="ExercisePortal" asp-action="Do" asp-route-id="@e.Id" class="btn btn-primary btn-sm fw-semibold px-3">
+                                <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Làm bài
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>

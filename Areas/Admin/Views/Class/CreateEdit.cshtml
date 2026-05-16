@@ -1,0 +1,30 @@
+﻿@model TinHocTHPT.Models.Entities.Class
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm lớp" : "Sửa lớp";
+    var teachers = ViewBag.Teachers as IEnumerable<TinHocTHPT.Models.Entities.TeacherProfile>;
+}
+<h2 class="h4 mb-3">@ViewData["Title"]</h2>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="CreatedAt" type="hidden" />
+    <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">Tên lớp</label><input asp-for="Name" class="form-control" /></div>
+        <div class="col-md-4"><label class="form-label">Khối</label><input asp-for="Grade" class="form-control" /></div>
+        <div class="col-md-4"><label class="form-label">Trạng thái</label><select asp-for="Status" class="form-select"><option value="Active">Hoạt động</option><option value="Inactive">Không hoạt động</option></select></div>
+        <div class="col-md-6">
+            <label class="form-label">Giáo viên chủ nhiệm</label>
+            <select asp-for="TeacherId" class="form-select">
+                <option value="">Chưa phân công</option>
+                @foreach (var t in teachers ?? Enumerable.Empty<TinHocTHPT.Models.Entities.TeacherProfile>())
+                {
+                    <option value="@t.Id" selected="@(Model.TeacherId == t.Id)">@t.User.FullName</option>
+                }
+            </select>
+        </div>
+    </div>
+    <button class="btn btn-primary mt-3">Lưu</button>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,30 @@
+﻿@model TinHocTHPT.Models.Entities.Topic
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm chủ đề" : "Sửa chủ đề";
+}
+<h2 class="h4 mb-3">@ViewData["Title"]</h2>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="CreatedAt" type="hidden" />
+    <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Tên chủ đề</label><input asp-for="Name" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Khối</label><input asp-for="Grade" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Biểu tượng</label><select asp-for="Icon" class="form-select">
+            <option value="bi-folder2-open">📁 Thư mục</option>
+            <option value="bi-database-check">🗄️ Cơ sở dữ liệu</option>
+            <option value="bi-window-sidebar">🌐 Web</option>
+            <option value="bi-shield-check">🛡️ An toàn</option>
+            <option value="bi-cpu">🖥️ Học máy</option>
+            <option value="bi-code-square">💻 Lập trình</option>
+            <option value="bi-palette">🎨 Đồ họa</option>
+            <option value="bi-journal-bookmark">📖 Sách</option>
+        </select></div>
+        <div class="col-md-3"><label class="form-label">Trạng thái</label><select asp-for="Status" class="form-select"><option value="Active">Hoạt động</option><option value="Inactive">Không hoạt động</option></select></div>
+        <div class="col-12"><label class="form-label">Mô tả</label><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
+    </div>
+    <button class="btn btn-primary mt-3">Lưu</button>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

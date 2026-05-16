@@ -1,0 +1,106 @@
+@model IEnumerable<TinHocTHPT.Models.Entities.StudentProfile>
+@{
+    ViewData["Title"] = "Bảng xếp hạng";
+    var list = Model.ToList();
+    var podium = list.Take(3).ToList();
+    var rest = list.Skip(3).ToList();
+    string? uid = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+    string MedalIcon(int rank) => rank switch {
+        1 => "bi-trophy-fill",
+        2 => "bi-award-fill",
+        _ => "bi-star-fill"
+    };
+}
+
+<div class="container py-4 py-lg-5">
+    <header class="mb-4">
+        <p class="small text-muted fw-semibold mb-1">Thi đua học tập</p>
+        <h1 class="h3 fw-bold mb-2">Bảng xếp hạng học sinh</h1>
+        <p class="text-muted mb-0 fw-500">
+            Xếp hạng theo điểm tích lũy từ các bài nộp hợp lệ. Bảng này giúp học sinh nhìn thấy tiến bộ và duy trì nhịp luyện tập.
+        </p>
+    </header>
+
+    @if (!list.Any())
+    {
+        <div class="empty-state-block">
+            <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-flag"></i></span>
+            <h2 class="h5 fw-bold mb-2">Chưa có dữ liệu xếp hạng</h2>
+            <p class="text-muted fw-500">Khi học sinh hoàn thành bài luyện hoặc đề ôn, bảng sẽ tự động cập nhật.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4 mb-5 align-items-stretch">
+            @for (var i = 0; i < podium.Count; i++)
+            {
+                var s = podium[i];
+                var rank = i + 1;
+                string podiumCls = rank == 1 ? "podium-card podium-1" : rank == 2 ? "podium-card podium-2 shadow-sm" : "podium-card podium-3 shadow-sm";
+
+                <div class="col-md-4">
+                    <div class="@podiumCls h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="podium-medal" aria-hidden="true"><i class="bi @MedalIcon(rank)"></i></div>
+                            <div class="small text-muted fw-semibold mb-1">Hạng @rank</div>
+                            <div class="h5 fw-bold text-break">@s.User.FullName</div>
+                            <div class="small text-muted">@(s.Class?.Name ?? "Chưa xếp lớp")</div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="fs-1 fw-bold lh-1" style="color: var(--color-primary);">
+                                @Math.Round(s.TotalScore, MidpointRounding.AwayFromZero)
+                            </div>
+                            <div class="small text-muted fw-semibold">Điểm tích lũy</div>
+                            <div class="small fw-500 mt-1">Đã làm <strong>@s.ExercisesDone</strong> bài</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (rest.Any())
+        {
+            <h2 class="h6 fw-bold text-muted text-uppercase mb-3">Từ hạng @(podium.Count + 1)</h2>
+            <div class="table-modern-wrap mb-5">
+                <table class="table-modern">
+                    <thead>
+                        <tr>
+                            <th>Hạng</th>
+                            <th>Học sinh</th>
+                            <th>Lớp</th>
+                            <th>Điểm</th>
+                            <th>Số bài</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var r = podium.Count;
+                        }
+                        @foreach (var item in rest)
+                        {
+                            r++;
+                            bool isMe = uid != null && item.UserId == uid;
+                            <tr class="@(isMe ? "row-highlight-me" : "")">
+                                <td class="fw-700 text-muted small">#@r</td>
+                                <td class="fw-semibold">
+                                    @(item.User.FullName ?? item.User.Email ?? "?")
+                                    @if (isMe)
+                                    {
+                                        <span class="badge rounded-pill ms-2" style="background:var(--color-primary-soft);color:var(--color-primary-dark);font-size:.7rem;font-weight:700;">Bạn</span>
+                                    }
+                                </td>
+                                <td class="small">@(item.Class?.Name ?? "Chưa xếp lớp")</td>
+                                <td class="fw-bold">@Math.Round(item.TotalScore, MidpointRounding.AwayFromZero)</td>
+                                <td>@item.ExercisesDone</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (list.Count <= 3)
+        {
+            <p class="small text-muted text-center fst-italic">Hiện hệ thống có @list.Count học sinh trong bảng xếp hạng.</p>
+        }
+    }
+</div>

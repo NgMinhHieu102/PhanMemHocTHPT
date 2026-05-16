@@ -1,0 +1,72 @@
+@model IEnumerable<TinHocTHPT.Models.Entities.Topic>
+@{
+    ViewData["Title"] = "Chủ đề";
+    var grade = ViewBag.Grade as int?;
+    var search = ViewBag.Search as string;
+    var status = ViewBag.Status as string;
+}
+<div class="d-flex justify-content-between mb-3">
+    <h2 class="h4 mb-0">Danh sách chủ đề</h2>
+    <a asp-action="CreateEdit" class="btn btn-primary">Thêm chủ đề</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="search" value="@search" class="form-control" placeholder="Tìm theo tên hoặc mô tả" />
+    </div>
+    <div class="col-md-2">
+        <select name="grade" class="form-select">
+            <option value="">Tất cả khối</option>
+            <option value="10" selected="@(grade == 10)">Khối 10</option>
+            <option value="11" selected="@(grade == 11)">Khối 11</option>
+            <option value="12" selected="@(grade == 12)">Khối 12</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Active" selected="@(status == "Active")">Hoạt động</option>
+            <option value="Inactive" selected="@(status == "Inactive")">Không hoạt động</option>
+        </select>
+    </div>
+    <div class="col-md-1 d-grid">
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </div>
+    <div class="col-md-3 d-grid">
+        <a asp-action="Index" class="btn btn-outline-secondary w-100">Bỏ lọc</a>
+    </div>
+</form>
+
+<table class="table table-bordered bg-white">
+    <thead>
+        <tr>
+            <th>Tên</th>
+            <th>Khối</th>
+            <th>Mô tả</th>
+            <th>Trạng thái</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr><td colspan="5" class="text-center text-muted">Không có chủ đề nào.</td></tr>
+        }
+        @foreach(var t in Model)
+        {
+            <tr>
+                <td>@t.Name</td>
+                <td>@t.Grade</td>
+                <td>@t.Description</td>
+                <td>@t.Status</td>
+                <td class="text-nowrap">
+                    <a asp-action="CreateEdit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary">Sửa</a>
+                    <form asp-action="Delete" asp-route-id="@t.Id" method="post" class="d-inline" data-confirm="Xóa chủ đề này?">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

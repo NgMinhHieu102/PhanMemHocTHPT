@@ -1,0 +1,161 @@
+@model StudentDashboardViewModel
+@{
+    ViewData["Title"] = "Bảng điều khiển";
+    string DiffClass(string d) => d switch {
+        "Easy" => "badge-easy",
+        "Medium" => "badge-medium",
+        "Hard" => "badge-hard",
+        _ => "badge-medium"
+    };
+    string DiffLabel(string d) => d switch {
+        "Easy" => "Dễ",
+        "Medium" => "Trung bình",
+        "Hard" => "Khó",
+        _ => d ?? ""
+    };
+    string UrgentLabel(string? cls)
+    {
+        if (cls == null) return "Nâng cao";
+        if (cls.Contains("danger")) return "Cần ôn gấp";
+        if (cls.Contains("warning")) return "Phù hợp";
+        return "Nâng cao";
+    }
+    string UrgencyPill(string? cls)
+    {
+        if (cls == null) return "learning-chip";
+        if (cls.Contains("danger"))
+            return "learning-chip border-danger text-danger";
+        if (cls.Contains("warning"))
+            return "learning-chip border-warning text-warning";
+        return "learning-chip border-primary text-primary";
+    }
+}
+<div class="container py-4 py-lg-5">
+    <header class="card study-card mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center gy-3">
+                <div class="col-lg-8">
+                    <p class="small text-muted fw-bold mb-1">Góc học tập cá nhân</p>
+                    <h1 class="h3 fw-bold mb-1">Xin chào, @Model.FullName!</h1>
+                    <p class="text-muted mb-0 fw-500" id="dashboard-time-greeting" data-hello="1">Chúc em một buổi học hiệu quả và dễ theo dõi tiến bộ.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <span class="learning-chip">
+                        <i class="bi bi-door-open" aria-hidden="true"></i>
+                        Lớp @Model.ClassName
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card dashboard-stat card-no-hover h-100">
+                <div class="card-body stat-card-ui stat-gold">
+                    <div class="stat-icon-wrap" aria-hidden="true"><i class="bi bi-trophy"></i></div>
+                    <div>
+                        <div class="stat-label">Tổng điểm</div>
+                        <div class="stat-value">@Math.Round(Model.TotalScore)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card dashboard-stat card-no-hover h-100">
+                <div class="card-body stat-card-ui stat-blue">
+                    <div class="stat-icon-wrap" aria-hidden="true"><i class="bi bi-journal-check"></i></div>
+                    <div>
+                        <div class="stat-label">Số bài đã làm</div>
+                        <div class="stat-value">@Model.ExercisesDone</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card dashboard-stat card-no-hover h-100">
+                <div class="card-body stat-card-ui stat-violet">
+                    <div class="stat-icon-wrap" aria-hidden="true"><i class="bi bi-bullseye"></i></div>
+                    <div>
+                        <div class="stat-label">Chủ đề đã học</div>
+                        <div class="stat-value">@Model.TopicsStudied</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card dashboard-stat card-no-hover h-100 streak-pulse" data-streak-active="@(Model.StreakDays > 0 ? "true" : "false")">
+                <div class="card-body stat-card-ui stat-orange">
+                    <div class="stat-icon-wrap" aria-hidden="true"><i class="bi bi-lightning-charge"></i></div>
+                    <div>
+                        <div class="stat-label">Chuỗi ngày học</div>
+                        <div class="stat-value">@Model.StreakDays ngày</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card rank-banner-dashboard mb-5">
+        <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <div>
+                <p class="small text-white-50 mb-1 fw-semibold">Xếp hạng của bạn</p>
+                <div class="rank-main">#@Model.RankInClass</div>
+                <p class="mb-0 opacity-90 fw-500">Trong lớp · xếp hạng khối: <strong>#@Model.RankInGrade</strong></p>
+            </div>
+            <a asp-area="" asp-controller="Leaderboard" asp-action="Index" class="btn btn-light btn-lg fw-bold text-dark">
+                <i class="bi bi-trophy me-2" aria-hidden="true"></i>Mở bảng xếp hạng
+            </a>
+        </div>
+    </div>
+
+    <section>
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+            <div>
+                <p class="small text-muted fw-bold mb-1">Bài nên làm tiếp</p>
+                <h2 class="h5 fw-bold mb-0">Gợi ý bài tập</h2>
+            </div>
+            <span class="small text-muted fw-500">Dựa trên kết quả gần đây của bạn</span>
+        </div>
+
+        @if (!Model.Recommendations.Any())
+        {
+            <div class="empty-state-block">
+                <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-stars"></i></span>
+                <h4 class="h5 fw-bold mb-2">Chưa có gợi ý trong lúc này</h4>
+                <p class="text-muted fw-500 mb-4 px-lg-5 mx-auto" style="max-width:520px;">
+                    Ghé chủ đề để ôn các bài còn mở. Hệ thống sẽ cập nhật gợi ý khi có thêm dữ liệu học tập.
+                </p>
+                <a asp-area="" asp-controller="Topics" asp-action="Index" class="btn btn-primary">
+                    <i class="bi bi-journal-bookmark me-1" aria-hidden="true"></i>Đi đến danh sách chủ đề
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var item in Model.Recommendations)
+                {
+                    <div class="col-md-6 col-xl-4">
+                        <article class="card recommendation-card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                                    <span class="@DiffClass(item.Difficulty)">@DiffLabel(item.Difficulty)</span>
+                                    <span class="@UrgencyPill(item.UrgencyClass)">@UrgentLabel(item.UrgencyClass)</span>
+                                    <span class="small fw-semibold @item.FitClass">@item.FitLabel</span>
+                                </div>
+                                <h3 class="h6 fw-bold">@item.ExerciseTitle</h3>
+                                <p class="small text-muted mb-3 flex-grow-1">Chủ đề · <strong class="fw-600 text-body">@item.TopicName</strong></p>
+                                <div>
+                                    <a asp-area="" asp-controller="ExercisePortal" asp-action="Do" asp-route-id="@item.ExerciseId" class="btn btn-primary w-100 fw-semibold">
+                                        <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Làm bài
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+</div>

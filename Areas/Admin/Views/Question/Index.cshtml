@@ -1,0 +1,113 @@
+@model X.PagedList.IPagedList<TinHocTHPT.Models.Entities.Question>
+@{
+    ViewData["Title"] = "Câu hỏi";
+    var topics = ViewBag.Topics as IEnumerable<TinHocTHPT.Models.Entities.Topic> ?? Enumerable.Empty<TinHocTHPT.Models.Entities.Topic>();
+    var search = ViewBag.Search as string;
+    var topicId = ViewBag.TopicId as int?;
+    var difficulty = ViewBag.Difficulty as string;
+}
+<div class="d-flex justify-content-between mb-3">
+    <h2 class="h4 mb-0">Danh sách câu hỏi</h2>
+    <a asp-action="Create" class="btn btn-primary">Thêm câu hỏi</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-auto">
+        <div class="small text-muted">Tổng câu hỏi</div>
+        <div class="h5 mb-0">@Model.TotalItemCount</div>
+    </div>
+    <div class="col-auto">
+        <div class="small text-muted">Chủ đề</div>
+        <div class="h5 mb-0">@topics.Count()</div>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="search" value="@search" class="form-control" placeholder="Tìm theo nội dung / bài tập" />
+    </div>
+    <div class="col-md-3">
+        <select name="topicId" class="form-select">
+            <option value="">-- Tất cả chủ đề --</option>
+            @foreach (var t in topics)
+            {
+                <option value="@t.Id" selected="@(topicId == t.Id)">@t.Name (Khối @t.Grade)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="difficulty" class="form-select">
+            <option value="">Tất cả độ khó</option>
+            <option value="Easy" selected="@(difficulty == "Easy")">Dễ</option>
+            <option value="Medium" selected="@(difficulty == "Medium")">Trung bình</option>
+            <option value="Hard" selected="@(difficulty == "Hard")">Khó</option>
+        </select>
+    </div>
+    <div class="col-md-1 d-grid">
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </div>
+    <div class="col-md-2 d-grid">
+        <a asp-action="Index" class="btn btn-outline-secondary w-100">Bỏ lọc</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered bg-white">
+        <thead>
+            <tr>
+                <th>Bài tập</th>
+                <th>Chủ đề</th>
+                <th>Loại</th>
+                <th>Mức độ</th>
+                <th>Nội dung</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="6" class="text-center text-muted">Không có câu hỏi nào.</td></tr>
+            }
+            @foreach (var q in Model)
+            {
+                <tr>
+                    <td>@q.Exercise?.Title</td>
+                    <td>@q.Topic?.Name</td>
+                    <td>@(q.QuestionType == "MultipleTrue" ? "Đ/S" : q.QuestionType == "Essay" ? "Tự luận" : "Trắc nghiệm")</td>
+                    <td>@(q.Difficulty == "Easy" ? "Dễ" : q.Difficulty == "Hard" ? "Khó" : "Trung bình")</td>
+                    <td>@(q.Content.Length > 100 ? q.Content[..100] + "..." : q.Content)</td>
+                    <td class="text-nowrap">
+                        <a asp-action="Edit" asp-route-id="@q.Id" class="btn btn-sm btn-outline-primary">Sửa</a>
+                        <form asp-action="Delete" asp-route-id="@q.Id" method="post" class="d-inline" data-confirm="Xóa câu hỏi này?">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.PageCount > 1)
+{
+    <div class="d-flex justify-content-end mt-3">
+        <nav aria-label="Phân trang câu hỏi">
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-search="@search" asp-route-topicId="@topicId">Đầu</a>
+                </li>
+                <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)" asp-route-search="@search" asp-route-topicId="@topicId">Trước</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">Trang @Model.PageNumber / @Model.PageCount</span></li>
+                <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)" asp-route-search="@search" asp-route-topicId="@topicId">Sau</a>
+                </li>
+                <li class="page-item @(Model.PageNumber == Model.PageCount ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@Model.PageCount" asp-route-search="@search" asp-route-topicId="@topicId">Cuối</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}

@@ -1,0 +1,28 @@
+@model StudentStatsViewModel
+@{
+    ViewData["Title"] = "Thống kê học sinh";
+}
+<h1 class="h4 fw-bold mb-4">Thống kê học sinh</h1>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card"><div class="card-body"><div class="text-muted small fw-semibold">Tổng học sinh</div><div class="h3 mb-0">@Model.TotalStudents</div></div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card"><div class="card-body"><div class="text-muted small fw-semibold">Đang hoạt động</div><div class="h3 mb-0">@Model.ActiveStudents</div></div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card"><div class="card-body"><div class="text-muted small fw-semibold">Điểm trung bình</div><div class="h3 mb-0">@Model.AverageScore</div></div></div>
+    </div>
+</div>
+
+<div class="card mb-5"><div class="card-body p-4"><div class="stats-chart-wrap"><canvas id="studentChart"></canvas></div></div></div>
+
+<div id="studentStatsData"
+     data-labels='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Labels))'
+     data-values='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Scores))'
+     class="d-none"></div>
+
+@section Scripts {
+    <script src="~/js/admin-stats.js" asp-append-version="true"></script>
+}

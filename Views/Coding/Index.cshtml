@@ -1,0 +1,100 @@
+@model CodingIndexViewModel
+@{
+    ViewData["Title"] = "Luyện code";
+}
+
+<div class="container py-4 py-lg-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <p class="small fw-semibold text-muted mb-1">Online Judge</p>
+            <h1 class="h3 fw-bold mb-2">Luyện tập viết code</h1>
+            <p class="text-muted fw-500 mb-0">
+                Viết code Python hoặc C++ trực tiếp trên trình duyệt, nộp bài và nhận kết quả chấm tự động.
+            </p>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4" role="tablist" aria-label="Lọc theo khối">
+        <button type="button" class="topic-filter-tab topic-filter-tab-pill active" data-coding-all>
+            Tất cả khối
+        </button>
+        <button type="button" class="topic-filter-tab topic-filter-tab-pill" data-coding-grade="10">Khối 10</button>
+        <button type="button" class="topic-filter-tab topic-filter-tab-pill" data-coding-grade="11">Khối 11</button>
+        <button type="button" class="topic-filter-tab topic-filter-tab-pill" data-coding-grade="12">Khối 12</button>
+    </div>
+
+    @if (!Model.Problems.Any())
+    {
+        <div class="empty-state-block">
+            <span class="empty-state-icon" aria-hidden="true"><i class="bi bi-code-square"></i></span>
+            <h2 class="h5 fw-bold">Chưa có bài tập code</h2>
+            <p class="text-muted mb-4">Hệ thống đang được bổ sung bài tập luyện code. Hãy quay lại sau.</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Quay về trang chủ</a>
+        </div>
+    }
+    else
+    {
+        <div class="coding-problem-table">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width:40px"></th>
+                            <th>Bài tập</th>
+                            <th class="d-none d-md-table-cell">Chủ đề</th>
+                            <th style="width:100px">Độ khó</th>
+                            <th class="d-none d-sm-table-cell" style="width:80px">Khối</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.Problems)
+                        {
+                            <tr class="coding-row coding-row-clickable" data-coding-row-grade="@p.Grade" data-problem-url="@Url.Action("Problem", "Coding", new { area = "", id = p.Id })">
+                                <td class="text-center">
+                                    @if (p.IsAccepted)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success" title="Đã AC"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-circle text-muted opacity-25"></i>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="fw-semibold">@p.Title</span>
+                                </td>
+                                <td class="d-none d-md-table-cell">
+                                    <span class="text-muted small">@p.TopicName</span>
+                                </td>
+                                <td>
+                                    @{
+                                        var diffClass = p.Difficulty switch
+                                        {
+                                            "Easy" => "coding-diff-easy",
+                                            "Hard" => "coding-diff-hard",
+                                            _ => "coding-diff-medium"
+                                        };
+                                        var diffText = p.Difficulty switch
+                                        {
+                                            "Easy" => "Dễ",
+                                            "Hard" => "Khó",
+                                            _ => "Trung bình"
+                                        };
+                                    }
+                                    <span class="badge @diffClass">@diffText</span>
+                                </td>
+                                <td class="d-none d-sm-table-cell">
+                                    <span class="badge bg-light text-dark border">@p.Grade</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script src="~/js/coding-index.js" asp-append-version="true"></script>
+}

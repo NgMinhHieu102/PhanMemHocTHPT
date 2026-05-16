@@ -1,0 +1,138 @@
+﻿@inject Ganss.Xss.IHtmlSanitizer HtmlSanitizer
+@model CodingProblemViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    var diffText = Model.Difficulty switch { "Easy" => "Dễ", "Hard" => "Khó", _ => "Trung bình" };
+    var diffClass = Model.Difficulty switch { "Easy" => "coding-diff-easy", "Hard" => "coding-diff-hard", _ => "coding-diff-medium" };
+}
+
+<div class="coding-workspace">
+    <!-- LEFT: Đề bài -->
+    <div class="coding-panel coding-panel-left" id="codingPanelLeft">
+        <div class="coding-panel-header">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                @if (Model.IsAccepted)
+                {
+                    <i class="bi bi-check-circle-fill text-success" title="Đã Accepted"></i>
+                }
+                <h1 class="h5 fw-bold mb-0">@Model.Title</h1>
+                <span class="badge @diffClass">@diffText</span>
+            </div>
+            <div class="small text-muted mt-1">
+                <span class="me-3"><i class="bi bi-tag me-1"></i>@Model.TopicName</span>
+                <span class="me-3"><i class="bi bi-clock me-1"></i>@(Model.TimeLimitMs)ms</span>
+                <span><i class="bi bi-memory me-1"></i>@(Model.MemoryLimitKb / 1024)MB</span>
+            </div>
+        </div>
+        <div class="coding-panel-body">
+            <div class="coding-description">
+                @Html.Raw(HtmlSanitizer.Sanitize(Model.Description ?? string.Empty))
+            </div>
+
+            @if (Model.SampleTests.Any())
+            {
+                <div class="mt-4">
+                    <h3 class="h6 fw-semibold mb-3">Ví dụ</h3>
+                    @for (int i = 0; i < Model.SampleTests.Count; i++)
+                    {
+                        var sample = Model.SampleTests[i];
+                        <div class="coding-sample-block mb-3">
+                            <div class="coding-sample-label">Ví dụ @(i + 1)</div>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="coding-io-label">Input</div>
+                                    <pre class="coding-io-pre">@sample.Input</pre>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="coding-io-label">Output</div>
+                                    <pre class="coding-io-pre">@sample.ExpectedOutput</pre>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="mt-3">
+                <a asp-area="" asp-controller="Coding" asp-action="Submissions" asp-route-id="@Model.Id"
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-clock-history me-1"></i>Lịch sử nộp bài
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Code editor -->
+    <div class="coding-panel coding-panel-right" id="codingPanelRight">
+        <div class="coding-panel-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <select id="languageSelect" class="form-select form-select-sm coding-language-select">
+                    <option value="python" selected>Python 3</option>
+                    <option value="cpp">C++ (GCC)</option>
+                </select>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRunSample" title="Chạy thử với test mẫu">
+                    <i class="bi bi-play-fill me-1"></i>Chạy thử
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnSubmit" title="Nộp bài chấm">
+                    <i class="bi bi-cloud-upload me-1"></i>Nộp bài
+                </button>
+            </div>
+        </div>
+        <div class="mb-3">
+            
+            <label for="stdinInput" class="form-label small mb-1 text-white">Nhập dữ liệu vào (stdin)</label>
+            <textarea id="stdinInput" class="form-control coding-input-area" rows="4" placeholder="Nhập input tại đây để chạy thử. Để trống để dùng test mẫu">@Model.SampleInput</textarea>
+        </div>
+        <div class="coding-editor-wrap" id="codeEditorWrap">
+            <textarea id="codeEditor" class="coding-editor-hidden">@(Model.Grade <= 10 ? "# Viết code Python ở đây\nn = int(input())\n" : "# Viết code ở đây\n")</textarea>
+        </div>
+        <!-- Result panel -->
+        <div class="coding-result-panel d-none" id="resultPanel">
+            <div class="coding-result-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold small">Kết quả</span>
+                <button type="button" class="btn-close btn-close-sm" id="btnCloseResult" aria-label="Đóng"></button>
+            </div>
+            <div class="coding-result-body" id="resultBody"></div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/dracula.min.css" />
+<style>
+    .coding-input-area {
+        background: #020617;
+        border: 1px solid #1f2937;
+        border-radius: 16px;
+        color: #ffffff;
+        font-family: 'Consolas', 'Monaco', monospace;
+        padding: 16px;
+        min-height: 180px;
+        line-height: 1.6;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+        resize: vertical;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .coding-input-area::placeholder {
+        color: #6b7280;
+    }
+</style>
+}
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/clike/clike.min.js"></script>
+<div id="codingProblemData"
+     data-problem-id="@Model.Id"
+     data-run-url="@Url.Action("RunSample", "Coding", new { area = "" })"
+     data-submit-url="@Url.Action("Submit", "Coding", new { area = "" })"
+     class="d-none"></div>
+@Html.AntiForgeryToken()
+<script src="~/js/coding-problem.js" asp-append-version="true"></script>
+}

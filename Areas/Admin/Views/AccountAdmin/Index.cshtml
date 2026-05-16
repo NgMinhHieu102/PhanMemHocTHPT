@@ -1,0 +1,30 @@
+@model IEnumerable<TinHocTHPT.Models.Entities.ApplicationUser>
+@{ ViewData["Title"] = "Quản lý tài khoản"; }
+
+<h2 class="h5 fw-bold mb-4">Danh sách tài khoản hệ thống</h2>
+
+<div class="table-modern-wrap mb-5">
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>Họ tên</th>
+                <th>Tên đăng nhập</th>
+                <th>Email</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td>@u.FullName</td>
+                    <td>@u.UserName</td>
+                    <td>@u.Email</td>
+                    <td>@u.Role</td>
+                    <td>@(u.Status == "Active" ? "Hoạt động" : "Không hoạt động")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

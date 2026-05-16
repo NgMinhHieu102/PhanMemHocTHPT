@@ -1,0 +1,52 @@
+@model QuestionCreateViewModel
+@{ ViewData["Title"] = "Sửa câu hỏi"; }
+<h2 class="h4 mb-3">Sửa câu hỏi</h2>
+<form method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Bài tập</label><select asp-for="SelectedItem" asp-items="Model.ExerciseOptions" class="form-select"></select></div>
+        <div class="col-md-6"><label class="form-label">Chủ đề</label><select asp-for="TopicId" asp-items="Model.TopicOptions" class="form-select"></select></div>
+        <div class="col-md-4"><label class="form-label">Loại</label><select asp-for="Type" asp-items="Model.TypeOptions" class="form-select"></select></div>
+        <div class="col-md-4"><label class="form-label">Mức độ</label><select asp-for="Difficulty" asp-items="Model.DifficultyOptions" class="form-select"></select></div>
+        <div class="col-md-4"><label class="form-label">Ảnh minh họa mới</label><input asp-for="ImageFile" class="form-control" /></div>
+        @if (!string.IsNullOrWhiteSpace(Model.ExistingImageUrl))
+        {
+            <div class="col-12"><img src="@Model.ExistingImageUrl" alt="Ảnh câu hỏi" class="question-preview-image" /></div>
+        }
+        <div class="col-12"><label class="form-label">Nội dung</label><textarea asp-for="Content" class="form-control" rows="5"></textarea></div>
+        <div class="col-12"><label class="form-label">Giải thích (tùy chọn)</label><textarea asp-for="Explanation" class="form-control" rows="4" placeholder="Nếu để trống, hệ thống tự tạo gợi ý dựa trên đáp án."></textarea><span asp-validation-for="Explanation" class="text-danger"></span></div>
+    </div>
+
+    <div id="multipleChoiceAnswers">
+        <h5 class="mt-4">Đáp án trắc nghiệm</h5>
+        @for (int i = 0; i < Model.Answers.Count; i++)
+        {
+            <div class="row g-2 mb-2">
+                <div class="col-md-1"><input asp-for="Answers[i].Label" class="form-control" readonly /></div>
+                <div class="col-md-9"><input asp-for="Answers[i].Content" class="form-control" /></div>
+                <div class="col-md-2 d-flex align-items-center"><div class="form-check"><input asp-for="Answers[i].IsCorrect" class="form-check-input" /><label class="form-check-label">Đúng</label></div></div>
+            </div>
+        }
+    </div>
+
+    <div id="multipleTrueAnswers" class="d-none">
+        <h5 class="mt-4">Trắc nghiệm Đúng/Sai</h5>
+        @for (int i = 0; i < Model.TrueFalseAnswers.Count; i++)
+        {
+            <div class="row g-2 mb-2">
+                <div class="col-md-1"><input asp-for="TrueFalseAnswers[i].SubIndex" class="form-control" readonly /></div>
+                <div class="col-md-9"><input asp-for="TrueFalseAnswers[i].Content" class="form-control" placeholder="Nội dung mệnh đề" /></div>
+                <div class="col-md-2 d-flex align-items-center"><div class="form-check"><input asp-for="TrueFalseAnswers[i].IsCorrect" class="form-check-input" /><label class="form-check-label">Đúng</label></div></div>
+                <input asp-for="TrueFalseAnswers[i].Label" type="hidden" value="TF" />
+            </div>
+        }
+    </div>
+
+    <button class="btn btn-primary mt-3">Cập nhật</button>
+</form>
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/admin-question-form.js" asp-append-version="true"></script>
+}

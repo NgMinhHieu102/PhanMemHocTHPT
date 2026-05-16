@@ -1,0 +1,21 @@
+﻿@model TinHocTHPT.Models.Entities.Exam
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm đề thi" : "Sửa đề thi";
+}
+<h2 class="h4 mb-3">@ViewData["Title"]</h2>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="CreatedAt" type="hidden" />
+    <div class="row g-3">
+        <div class="col-12"><label class="form-label">Tiêu đề</label><input asp-for="Title" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Khối</label><input asp-for="Grade" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Thời lượng (phút)</label><input asp-for="Duration" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Số câu hỏi</label><input asp-for="TotalQuestions" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Trạng thái</label><select asp-for="Status" class="form-select"><option value="Active">Hoạt động</option><option value="Inactive">Không hoạt động</option></select></div>
+    </div>
+    <button class="btn btn-primary mt-3">Lưu</button>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

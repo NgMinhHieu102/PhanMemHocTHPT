@@ -1,0 +1,4 @@
+﻿/*
+  Scoped layout CSS — không dùng pattern footer position:absolute của template cũ
+  (đè lên chart / bảng và khiến trang không cuộn được). Toàn bộ layout nằm ở site.css.
+*/

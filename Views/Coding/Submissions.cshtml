@@ -1,0 +1,99 @@
+@model List<CodingSubmissionItem>
+@{
+    ViewData["Title"] = "Lịch sử nộp bài - " + ViewBag.ProblemTitle;
+}
+
+<div class="container py-4 py-lg-5">
+    <div class="mb-4">
+        <a asp-area="" asp-controller="Coding" asp-action="Problem" asp-route-id="@ViewBag.ProblemId"
+           class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại bài tập
+        </a>
+        <h1 class="h4 fw-bold">Lịch sử nộp bài</h1>
+        <p class="text-muted">@ViewBag.ProblemTitle</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state-block">
+            <span class="empty-state-icon"><i class="bi bi-clock-history"></i></span>
+            <h2 class="h5 fw-bold">Chưa có lần nộp nào</h2>
+            <p class="text-muted mb-4">Hãy viết code và nộp bài để xem kết quả ở đây.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:50px">#</th>
+                        <th>Kết quả</th>
+                        <th>Ngôn ngữ</th>
+                        <th>Test</th>
+                        <th class="d-none d-md-table-cell">Thời gian</th>
+                        <th class="d-none d-md-table-cell">Bộ nhớ</th>
+                        <th>Thời điểm</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var idx = Model.Count; }
+                    @foreach (var s in Model)
+                    {
+                        var vClass = s.Verdict switch
+                        {
+                            "AC" => "coding-verdict-ac",
+                            "WA" => "coding-verdict-wa",
+                            "TLE" => "coding-verdict-tle",
+                            "RE" => "coding-verdict-re",
+                            "CE" => "coding-verdict-ce",
+                            _ => ""
+                        };
+                        var vLabel = s.Verdict switch
+                        {
+                            "AC" => "Accepted",
+                            "WA" => "Wrong Answer",
+                            "TLE" => "Time Limit",
+                            "RE" => "Runtime Error",
+                            "CE" => "Compile Error",
+                            _ => s.Verdict
+                        };
+                        <tr class="submission-row" data-bs-toggle="collapse" data-bs-target="#code-@s.Id"
+                            style="cursor:pointer" title="Bấm để xem code">
+                            <td class="text-muted">@idx</td>
+                            <td><span class="badge @vClass">@vLabel</span></td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @(s.Language == "cpp" ? "C++" : "Python")
+                                </span>
+                            </td>
+                            <td>@s.PassedTests/@s.TotalTests</td>
+                            <td class="d-none d-md-table-cell small text-muted">@(s.ExecutionTimeMs)ms</td>
+                            <td class="d-none d-md-table-cell small text-muted">@(s.MemoryUsedKb)KB</td>
+                            <td class="small text-muted" data-utc="@s.SubmittedAt.ToString("o")">
+                                @s.SubmittedAt.ToString("dd/MM HH:mm")
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="p-0 border-0">
+                                <div class="collapse" id="code-@s.Id">
+                                    <div class="p-3 bg-dark rounded-3 m-2">
+                                        <pre class="text-light mb-0" style="font-size:.82rem; white-space:pre-wrap;">@s.SourceCode</pre>
+                                        @if (!string.IsNullOrEmpty(s.CompileOutput))
+                                        {
+                                            <div class="mt-2 p-2 rounded" style="background:rgba(255,100,100,.15)">
+                                                <small class="text-danger fw-semibold">Lỗi biên dịch:</small>
+                                                <pre class="text-danger mb-0 mt-1" style="font-size:.8rem">@s.CompileOutput</pre>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        idx--;
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

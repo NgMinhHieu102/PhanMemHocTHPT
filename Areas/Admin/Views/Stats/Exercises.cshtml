@@ -1,0 +1,28 @@
+@model ExerciseStatsViewModel
+@{
+    ViewData["Title"] = "Thống kê bài tập";
+}
+<h1 class="h4 fw-bold mb-4">Thống kê bài tập</h1>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card"><div class="card-body"><div class="text-muted small fw-semibold">Tổng bài tập</div><div class="h3 mb-0">@Model.TotalExercises</div></div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card"><div class="card-body"><div class="text-muted small fw-semibold">Tổng lượt làm</div><div class="h3 mb-0">@Model.TotalAttempts</div></div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card"><div class="card-body"><div class="text-muted small fw-semibold">Điểm TB</div><div class="h3 mb-0">@Model.AverageScore</div></div></div>
+    </div>
+</div>
+
+<div class="card mb-5"><div class="card-body p-4"><div class="stats-chart-wrap"><canvas id="exerciseChart"></canvas></div></div></div>
+
+<div id="exerciseStatsData"
+     data-labels='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Labels))'
+     data-values='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Attempts))'
+     class="d-none"></div>
+
+@section Scripts {
+    <script src="~/js/admin-stats.js" asp-append-version="true"></script>
+}

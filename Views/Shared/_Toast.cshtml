@@ -1,0 +1,64 @@
+@if (TempData["Success"] != null)
+{
+    <div class="toast-container">
+        <div class="toast show align-items-center text-bg-success border-0"
+             role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast" aria-label="Đóng"></button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="toast-container">
+        <div class="toast show align-items-center text-bg-danger border-0"
+             role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>@TempData["Error"]
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast" aria-label="Đóng"></button>
+            </div>
+        </div>
+    </div>
+}
+
+@{
+    var modelErrors = ViewData.ModelState.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage)
+        .Where(msg => !string.IsNullOrWhiteSpace(msg))
+        .Distinct()
+        .ToList();
+}
+
+@if (modelErrors.Count > 0)
+{
+    <div class="toast-container">
+        <div class="toast show align-items-center text-bg-danger border-0"
+             role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <div class="fw-semibold mb-1">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>Vui lòng kiểm tra lại thông tin:
+                    </div>
+                    <ul class="mb-0 ps-3">
+                        @foreach (var error in modelErrors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast" aria-label="Đóng"></button>
+            </div>
+        </div>
+    </div>
+}
