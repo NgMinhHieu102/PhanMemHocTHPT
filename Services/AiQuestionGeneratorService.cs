@@ -23,10 +23,21 @@ public class AiQuestionGeneratorService : IAiQuestionGeneratorService
     public AiQuestionGeneratorService(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
-        var geminiApiKey = configuration["Gemini:ApiKey"] ?? configuration["ApiKey"];
-        var grokApiKey = configuration["Grok:ApiKey"] ?? configuration["ApiKey"];
+        var geminiApiKey = configuration["Gemini:ApiKey"];
+        var groqApiKey = configuration["Groq:ApiKey"];
+        var grokApiKey = configuration["Grok:ApiKey"];
 
         _promptInstruction = configuration["AiQuestionGenerator:Instruction"]?.Trim() ?? string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(groqApiKey))
+        {
+            _useGemini = false;
+            _apiKey = groqApiKey;
+            _model = configuration["Groq:Model"] ?? "llama-3.3-70b-versatile";
+            _httpClient.BaseAddress = new Uri("https://api.groq.com/openai/");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+            return;
+        }
 
         if (!string.IsNullOrWhiteSpace(geminiApiKey))
         {
@@ -47,7 +58,7 @@ public class AiQuestionGeneratorService : IAiQuestionGeneratorService
             return;
         }
 
-        throw new InvalidOperationException("AI API key is not configured. Please add Gemini:ApiKey or Grok:ApiKey to configuration.");
+        throw new InvalidOperationException("AI API key is not configured. Please add Groq:ApiKey, Gemini:ApiKey or Grok:ApiKey to configuration.");
     }
 
     public async Task<List<AiGeneratedQuestion>> GenerateAsync(AiQuestionPrompt prompt, CancellationToken cancellationToken = default)
@@ -371,9 +382,17 @@ public class AiQuestionGeneratorService : IAiQuestionGeneratorService
 public sealed record AiQuestionPrompt(string Content, string QuestionType, int Count, string Difficulty, string TopicName);
 public sealed record AiGeneratedQuestion
 {
-    public string Content { get; init; } = string.Empty;
+    [JsonPropertyName("question")]
+    public string Question { get; init; } = string.Empty;
+    
+    [JsonPropertyName("content")]
+    public string ContentField { get; init; } = string.Empty;
+    
     public string? Explanation { get; init; }
     public List<AiGeneratedAnswer> Answers { get; init; } = new();
+    
+    [JsonIgnore]
+    public string Content => !string.IsNullOrWhiteSpace(Question) ? Question : ContentField;
 }
 
 public sealed record AiGeneratedAnswer

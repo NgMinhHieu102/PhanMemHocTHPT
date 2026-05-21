@@ -199,12 +199,12 @@ public class AiQuestionGeneratorController : Controller
                     .Where(a => !string.IsNullOrWhiteSpace(a.Content))
                     .ToList();
 
-                if (questionType == QuestionTypes.MultipleChoice && !answers.Any(a => a.IsCorrect))
+                if (answers.Count == 0)
                 {
                     continue;
                 }
 
-                if (questionType == QuestionTypes.MultipleTrue && answers.Count < 2)
+                if (questionType == QuestionTypes.MultipleChoice && !answers.Any(a => a.IsCorrect))
                 {
                     continue;
                 }
